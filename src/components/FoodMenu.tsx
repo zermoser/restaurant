@@ -315,7 +315,7 @@ const CheckoutModal: React.FC<{
                                     ) : (
                                         <>
                                             <CreditCard className="w-5 h-5 md:w-6 md:h-6" />
-                                            <span className="text-base md:text-lg">ยืนยันสั่งซื้อ</span>
+                                            <span className="text-base md:text-lg">ยืนยัน</span>
                                         </>
                                     )}
                                 </button>
