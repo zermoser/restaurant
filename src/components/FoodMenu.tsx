@@ -178,26 +178,26 @@ const mockFoodData: FoodItem[] = [
 ];
 
 // Enhanced Checkout Modal Component
+
 const CheckoutModal: React.FC<{
     isOpen: boolean;
     onClose: () => void;
+    onComplete: () => void;
     cartItems: CartItem[];
     total: number;
-}> = ({ isOpen, onClose, cartItems, total }) => {
-    const [step, setStep] = useState(1); // 1: Order Summary, 2: Success Animation
+}> = ({ isOpen, onClose, onComplete, cartItems, total }) => {
+    const [step, setStep] = useState(1);
     const [isProcessing, setIsProcessing] = useState(false);
 
     const handleConfirmOrder = async () => {
         setIsProcessing(true);
-
-        // Simulate order processing
         setTimeout(() => {
             setIsProcessing(false);
             setStep(2);
-
             // Auto close after success animation
             setTimeout(() => {
-                onClose();
+                onClose();      // ปิด modal
+                onComplete();   // ล้างตะกร้า
                 setStep(1);
             }, 4000);
         }, 2000);
@@ -207,11 +207,21 @@ const CheckoutModal: React.FC<{
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-60 z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-3xl max-w-md w-full overflow-hidden shadow-2xl transform transition-all duration-300">
+            <div className="
+          bg-white rounded-3xl 
+          max-w-md w-full 
+          max-h-screen        /* ไม่เกินความสูง viewport */
+          flex flex-col overflow-hidden shadow-2xl transform transition-all duration-300
+        ">
                 {step === 1 ? (
                     // Order Summary Step
                     <>
-                        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-white">
+                        {/* Header */}
+                        <div className="
+                bg-gradient-to-r from-blue-500 to-indigo-600 
+                p-6 text-white 
+                flex-shrink-0 sticky top-0 z-10
+              ">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <h2 className="text-2xl font-bold mb-1">🧾 ยืนยันคำสั่งซื้อ</h2>
@@ -221,39 +231,47 @@ const CheckoutModal: React.FC<{
                                     onClick={onClose}
                                     className="p-2 hover:bg-white hover:bg-opacity-20 rounded-full transition-colors"
                                 >
-                                    <X size={24} />
+                                    <X className="w-6 h-6 md:w-7 md:h-7" />
                                 </button>
                             </div>
                         </div>
 
-                        <div className="p-6">
+                        {/* Content Scrollable */}
+                        <div className="flex-1 overflow-y-auto p-6 space-y-6">
                             {/* Order Items */}
-                            <div className="space-y-4 mb-6">
+                            <div className="space-y-4">
                                 {cartItems.map((item) => (
-                                    <div key={item.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl">
+                                    <div
+                                        key={item.id}
+                                        className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl"
+                                    >
                                         <div className="text-3xl">{item.image}</div>
                                         <div className="flex-1">
                                             <h4 className="font-semibold text-gray-800">{item.name}</h4>
-                                            <p className="text-sm text-gray-600">฿{item.price} x {item.quantity}</p>
+                                            <p className="text-sm text-gray-600">
+                                                ฿{item.price.toLocaleString()} x {item.quantity}
+                                            </p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="font-bold text-green-600">฿{(item.price * item.quantity).toLocaleString()}</p>
+                                            <p className="font-bold text-green-600">
+                                                ฿{(item.price * item.quantity).toLocaleString()}
+                                            </p>
                                         </div>
                                     </div>
                                 ))}
                             </div>
 
                             {/* Order Info */}
-                            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-2xl mb-6">
-                                <div className="flex items-center gap-3 mb-3">
-                                    <MapPin size={20} className="text-blue-600" />
+                            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-2xl space-y-4">
+                                <div className="flex items-center gap-3">
+                                    <MapPin className="w-5 h-5 text-blue-600 md:w-6 md:h-6" />
                                     <div>
                                         <p className="font-medium text-gray-800">📍 จัดส่งที่</p>
                                         <p className="text-sm text-gray-600">โต๊ะที่ 12 - ชั้น 2</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <Timer size={20} className="text-orange-600" />
+                                    <Timer className="w-5 h-5 text-orange-600 md:w-6 md:h-6" />
                                     <div>
                                         <p className="font-medium text-gray-800">⏱️ เวลาเตรียม</p>
                                         <p className="text-sm text-gray-600">ประมาณ 20-25 นาที</p>
@@ -262,20 +280,27 @@ const CheckoutModal: React.FC<{
                             </div>
 
                             {/* Total */}
-                            <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-2xl mb-6">
+                            <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-2xl">
                                 <div className="flex justify-between items-center">
                                     <span className="text-lg font-semibold text-gray-800">💰 ยอดรวมทั้งหมด</span>
-                                    <span className="text-2xl font-bold text-green-600">฿{total.toLocaleString()}</span>
+                                    <span className="text-2xl font-bold text-green-600">
+                                        ฿{total.toLocaleString()}
+                                    </span>
                                 </div>
                             </div>
+                        </div>
 
-                            {/* Action Buttons */}
+                        {/* Footer Sticky */}
+                        <div className="
+                flex-shrink-0 sticky bottom-0 z-10 
+                bg-white border-t border-gray-200 p-6
+              ">
                             <div className="flex gap-4">
                                 <button
                                     onClick={onClose}
                                     className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-4 px-6 rounded-2xl transition-all duration-300"
                                 >
-                                    ยกเลิก
+                                    ย้อนกลับ
                                 </button>
                                 <button
                                     onClick={handleConfirmOrder}
@@ -285,12 +310,12 @@ const CheckoutModal: React.FC<{
                                     {isProcessing ? (
                                         <>
                                             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-                                            <span>กำลังดำเนินการ...</span>
+                                            <span className="text-base md:text-lg">กำลังดำเนินการ...</span>
                                         </>
                                     ) : (
                                         <>
-                                            <CreditCard size={20} />
-                                            <span>ยืนยันสั่งซื้อ</span>
+                                            <CreditCard className="w-5 h-5 md:w-6 md:h-6" />
+                                            <span className="text-base md:text-lg">ยืนยันสั่งซื้อ</span>
                                         </>
                                     )}
                                 </button>
@@ -299,37 +324,43 @@ const CheckoutModal: React.FC<{
                     </>
                 ) : (
                     // Success Animation Step
-                    <div className="p-8 text-center">
+                    // ถ้าเนื้อหาอาจยาว สามารถทำเป็น scrollable ได้เช่นกัน แต่ส่วนนี้สั้นพอจึงไม่จำเป็นต้อง sticky footer
+                    <div className="flex-1 overflow-y-auto p-8 flex flex-col items-center justify-center">
                         <div className="relative mb-6">
                             <div className="w-24 h-24 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center mx-auto animate-pulse">
-                                <CheckCircle size={48} className="text-white animate-bounce" />
+                                <CheckCircle className="w-12 h-12 text-white animate-bounce" />
                             </div>
                             <div className="absolute -top-2 -right-2 animate-ping">
-                                <Sparkles size={24} className="text-yellow-500" />
+                                <Sparkles className="w-6 h-6 text-yellow-500" />
                             </div>
                         </div>
 
                         <h2 className="text-3xl font-bold text-gray-800 mb-2">🎉 สั่งอาหารสำเร็จ!</h2>
                         <p className="text-gray-600 mb-4">ขอบคุณที่ใช้บริการ</p>
 
-                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl mb-6">
+                        <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-2xl mb-6 w-full">
                             <div className="flex items-center justify-center gap-2 mb-4">
-                                <Timer size={24} className="text-orange-500" />
+                                <Timer className="w-6 h-6 text-orange-500 md:w-7 md:h-7" />
                                 <span className="text-lg font-semibold">กำลังเตรียมอาหาร</span>
                             </div>
                             <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-                                <div className="bg-gradient-to-r from-orange-400 to-red-500 h-2 rounded-full animate-pulse" style={{ width: '30%' }}></div>
+                                <div
+                                    className="bg-gradient-to-r from-orange-400 to-red-500 h-2 rounded-full animate-pulse"
+                                    style={{ width: '30%' }}
+                                ></div>
                             </div>
-                            <p className="text-sm text-gray-600">อาหารจะเสิร์ฟที่โต๊ะ 12 ภายใน 20-25 นาที</p>
+                            <p className="text-sm text-gray-600 text-center">
+                                อาหารจะเสิร์ฟที่โต๊ะ 12 ภายใน 20-25 นาที
+                            </p>
                         </div>
 
                         <div className="flex items-center justify-center gap-4 text-sm text-gray-500">
                             <div className="flex items-center gap-1">
-                                <Heart size={16} className="text-red-500" />
+                                <Heart className="w-4 h-4 text-red-500 md:w-5 md:h-5" />
                                 <span>ขอบคุณ</span>
                             </div>
                             <div className="flex items-center gap-1">
-                                <Users size={16} className="text-blue-500" />
+                                <Users className="w-4 h-4 text-blue-500 md:w-5 md:h-5" />
                                 <span>ครัวคุณมอส</span>
                             </div>
                         </div>
@@ -486,6 +517,7 @@ const FoodItemCard: React.FC<{
 };
 
 // Enhanced Cart Modal Component
+
 const CartModal: React.FC<{
     isOpen: boolean;
     onClose: () => void;
@@ -501,9 +533,21 @@ const CartModal: React.FC<{
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end md:items-center justify-center">
-            <div className="bg-white w-full md:w-96 md:rounded-3xl max-h-[90vh] flex flex-col shadow-2xl">
-                {/* Header */}
-                <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-6">
+            {/* ตัว modal container */}
+            <div className="
+                bg-white w-full md:w-96 
+                max-h-screen            /* สูงสุดไม่เกินความสูงหน้าจอ */
+                flex flex-col 
+                overflow-hidden         /* ซ่อน overflow ภายนอกของ modal */
+                md:rounded-3xl 
+                shadow-2xl
+            ">
+                {/* Header (sticky) */}
+                <div className="
+                    bg-gradient-to-r from-orange-500 to-red-500 text-white p-6
+                    flex-shrink-0         /* ป้องกัน header หดเมื่อ scroll */
+                    sticky top-0 z-10     /* ติดด้านบนเมื่อ scroll */
+                ">
                     <div className="flex items-center justify-between">
                         <h2 className="text-xl font-bold flex items-center gap-3">
                             <ShoppingCart size={24} />
@@ -518,7 +562,7 @@ const CartModal: React.FC<{
                     </div>
                 </div>
 
-                {/* Cart Items */}
+                {/* Cart Items: ส่วนนี้เป็น scrollable area */}
                 <div className="flex-1 overflow-y-auto p-6">
                     {cartItems.length === 0 ? (
                         <div className="text-center py-12 text-gray-500">
@@ -529,7 +573,11 @@ const CartModal: React.FC<{
                     ) : (
                         <div className="space-y-4">
                             {cartItems.map((item) => (
-                                <div key={item.id} className="bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl p-5 hover:shadow-md transition-all duration-300">
+                                <div key={item.id} className="
+                                    bg-gradient-to-r from-gray-50 to-gray-100 
+                                    rounded-2xl p-5 
+                                    hover:shadow-md transition-all duration-300
+                                ">
                                     <div className="flex items-start gap-4">
                                         <div className="text-4xl">{item.image}</div>
                                         <div className="flex-1">
@@ -573,25 +621,27 @@ const CartModal: React.FC<{
                     )}
                 </div>
 
-                {/* Footer */}
+                {/* Footer (sticky) */}
                 {cartItems.length > 0 && (
-                    <>
-                        <div className="border-t border-gray-200 p-6 bg-gray-50">
-                            <div className="flex justify-between items-center mb-6">
-                                <span className="text-xl font-semibold text-gray-800">ยอดรวม</span>
-                                <span className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                                    ฿{total.toLocaleString()}
-                                </span>
-                            </div>
-                            <button
-                                onClick={onCheckout}
-                                className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 hover:shadow-lg transform hover:scale-105"
-                            >
-                                <CreditCard size={24} />
-                                สั่งอาหาร ฿{total.toLocaleString()}
-                            </button>
+                    <div className="
+                        border-t border-gray-200 p-6 bg-gray-50 
+                        flex-shrink-0         /* ป้องกัน footer หดเมื่อ scroll */
+                        sticky bottom-0 z-10  /* ติดด้านล่างเมื่อ scroll */
+                    ">
+                        <div className="flex justify-between items-center mb-6">
+                            <span className="text-xl font-semibold text-gray-800">ยอดรวม</span>
+                            <span className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                                ฿{total.toLocaleString()}
+                            </span>
                         </div>
-                    </>
+                        <button
+                            onClick={onCheckout}
+                            className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold py-4 px-6 rounded-2xl flex items-center justify-center gap-3 transition-all duration-300 hover:shadow-lg transform hover:scale-105"
+                        >
+                            <CreditCard size={24} />
+                            สั่งอาหาร ฿{total.toLocaleString()}
+                        </button>
+                    </div>
                 )}
             </div>
         </div>
@@ -677,6 +727,10 @@ const FoodMenu: React.FC = () => {
         setIsCheckoutOpen(false);
     };
 
+    const handleCheckoutCancel = () => {
+        setIsCheckoutOpen(false);
+    };
+
     // Auto-scroll to top when category changes
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -725,7 +779,8 @@ const FoodMenu: React.FC = () => {
             {/* Checkout Modal */}
             <CheckoutModal
                 isOpen={isCheckoutOpen}
-                onClose={handleCheckoutComplete}
+                onClose={handleCheckoutCancel}
+                onComplete={handleCheckoutComplete}
                 cartItems={cartItems}
                 total={totalAmount}
             />
