@@ -1,9 +1,9 @@
-import ChatbotUI from './components/ChatbotUI';
+import FoodMenu from './components/FoodMenu';
 
 function App() {
   return (
     <div>
-      <ChatbotUI />
+      <FoodMenu />
     </div>
   );
 }

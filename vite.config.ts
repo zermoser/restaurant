@@ -6,6 +6,6 @@ export default defineConfig({
   base: '/restaurant/',
   server: {
     open: true,
-    port: 3015
+    port: 3014
   }
 });
