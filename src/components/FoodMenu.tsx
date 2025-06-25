@@ -178,7 +178,6 @@ const mockFoodData: FoodItem[] = [
 ];
 
 // Enhanced Checkout Modal Component
-
 const CheckoutModal: React.FC<{
     isOpen: boolean;
     onClose: () => void;
@@ -210,7 +209,7 @@ const CheckoutModal: React.FC<{
             <div className="
           bg-white rounded-3xl 
           max-w-md w-full 
-          max-h-screen        /* ไม่เกินความสูง viewport */
+          max-h-[80dvh]
           flex flex-col overflow-hidden shadow-2xl transform transition-all duration-300
         ">
                 {step === 1 ? (
@@ -517,7 +516,6 @@ const FoodItemCard: React.FC<{
 };
 
 // Enhanced Cart Modal Component
-
 const CartModal: React.FC<{
     isOpen: boolean;
     onClose: () => void;
@@ -533,12 +531,11 @@ const CartModal: React.FC<{
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end md:items-center justify-center">
-            {/* ตัว modal container */}
             <div className="
                 bg-white w-full md:w-96 
-                max-h-screen            /* สูงสุดไม่เกินความสูงหน้าจอ */
-                flex flex-col 
-                overflow-hidden         /* ซ่อน overflow ภายนอกของ modal */
+                max-h-[80%] 
+                flex flex-col
+                overflow-hidden
                 md:rounded-3xl 
                 shadow-2xl
             ">
